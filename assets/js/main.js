@@ -29,6 +29,10 @@
 
     if (reducedMotion) return;
 
+    gsap.config({
+        nullTargetWarn: false,
+    });
+
     const intro = gsap.timeline({
         defaults: { ease: "power3.out" },
     });

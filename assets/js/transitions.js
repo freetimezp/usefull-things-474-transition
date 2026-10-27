@@ -13,6 +13,10 @@
     let activeTimeline = null;
     let navigating = false;
 
+    gsap.config({
+        nullTargetWarn: false,
+    });
+
     function createGrid() {
         grid.innerHTML = "";
         blocks = [];
