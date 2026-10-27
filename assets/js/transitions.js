@@ -1,4 +1,4 @@
-(() => {
+document.addEventListener("DOMContentLoaded", () => {
     const ROWS = 4;
     const COLS = 16;
 
@@ -166,4 +166,4 @@
         gsap.set(blocks, { scaleX: 1 });
         activeTimeline = revealScreen();
     }
-})();
+});
