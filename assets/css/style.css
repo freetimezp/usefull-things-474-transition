@@ -295,6 +295,7 @@ button {
     position: fixed;
     z-index: 1000;
     inset: 0;
+
     overflow: hidden;
     pointer-events: none;
 }
@@ -304,124 +305,6 @@ button {
     background: var(--accent);
     transform: scaleX(0);
     will-change: transform;
-}
-
-@media (min-width: 1500px) {
-    .hero {
-        min-height: 780px;
-    }
-}
-
-@media (max-width: 760px) {
-    .navbar {
-        min-height: 76px;
-    }
-
-    .nav-status {
-        display: none;
-    }
-
-    .menu-toggle {
-        display: block;
-    }
-
-    .nav-links {
-        position: absolute;
-        top: 76px;
-        right: 0;
-        left: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-        padding: 12px 6% 24px;
-        border-bottom: 1px solid var(--line);
-        background: var(--bg);
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(-8px);
-    }
-
-    .nav-links.open {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-    }
-
-    .nav-links a {
-        padding: 17px 0;
-        border-bottom: 1px solid var(--line);
-    }
-
-    .hero {
-        min-height: calc(100svh - 130px);
-        padding-top: 28px;
-        padding-bottom: 32px;
-    }
-
-    .hero-top {
-        gap: 16px;
-        font-size: 8px;
-    }
-
-    .hero-top span:last-child {
-        text-align: right;
-    }
-
-    .hero-title-wrap {
-        min-height: 350px;
-    }
-
-    .hero-title {
-        font-size: clamp(65px, 13.5vw, 105px);
-    }
-
-    .hero-orb {
-        top: 43%;
-        left: 65%;
-        width: 44vw;
-    }
-
-    .hero-bottom {
-        grid-template-columns: 1fr auto;
-        gap: 24px 12px;
-    }
-
-    .hero-description {
-        max-width: 230px;
-        font-size: 12px;
-    }
-
-    .explore-link {
-        grid-column: 1;
-        justify-self: start;
-        padding: 14px 16px;
-        font-size: 9px;
-    }
-
-    .hero-index {
-        grid-column: 2;
-        grid-row: 2;
-        font-size: 8px;
-    }
-
-    .site-footer {
-        font-size: 8px;
-        letter-spacing: 0.8px;
-    }
-}
-
-@media (max-width: 390px) {
-    .hero-title {
-        font-size: 15vw;
-    }
-
-    .hero-description {
-        font-size: 11px;
-    }
-
-    .site-footer span:last-child {
-        text-align: right;
-    }
 }
 
 /* =========================================
@@ -559,11 +442,109 @@ button {
     font-size: 14px;
 }
 
-/* =========================================
-   RESPONSIVE ADJUSTMENTS
-========================================= */
+@media (min-width: 1500px) {
+    .hero {
+        min-height: 780px;
+    }
+}
 
 @media (max-width: 760px) {
+    .navbar {
+        min-height: 76px;
+    }
+
+    .nav-status {
+        display: none;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    .nav-links {
+        position: absolute;
+        top: 76px;
+        right: 0;
+        left: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        padding: 12px 6% 24px;
+        border-bottom: 1px solid var(--line);
+        background: var(--bg);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-8px);
+    }
+
+    .nav-links.open {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .nav-links a {
+        padding: 17px 0;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .hero {
+        min-height: calc(100svh - 130px);
+        padding-top: 28px;
+        padding-bottom: 32px;
+    }
+
+    .hero-top {
+        gap: 16px;
+        font-size: 8px;
+    }
+
+    .hero-top span:last-child {
+        text-align: right;
+    }
+
+    .hero-title-wrap {
+        min-height: 350px;
+    }
+
+    .hero-title {
+        font-size: clamp(65px, 13.5vw, 105px);
+    }
+
+    .hero-orb {
+        top: 43%;
+        left: 65%;
+        width: 44vw;
+    }
+
+    .hero-bottom {
+        grid-template-columns: 1fr auto;
+        gap: 24px 12px;
+    }
+
+    .hero-description {
+        max-width: 230px;
+        font-size: 12px;
+    }
+
+    .explore-link {
+        grid-column: 1;
+        justify-self: start;
+        padding: 14px 16px;
+        font-size: 9px;
+    }
+
+    .hero-index {
+        grid-column: 2;
+        grid-row: 2;
+        font-size: 8px;
+    }
+
+    .site-footer {
+        font-size: 8px;
+        letter-spacing: 0.8px;
+    }
+
     .cascade-stage {
         min-height: 470px;
         padding: 55px 0;
@@ -571,20 +552,6 @@ button {
 
     .cascade-title {
         font-size: clamp(52px, 11vw, 82px);
-    }
-
-    .cascade-art {
-        top: 55%;
-        right: 0;
-        width: 55vw;
-        opacity: 0.8;
-    }
-
-    .cascade-side-note {
-        right: 0;
-        bottom: 0;
-        gap: 8px;
-        font-size: 8px;
     }
 
     .cascade-label {
@@ -615,15 +582,6 @@ button {
         margin-top: 20px;
     }
 
-    .orbit-system {
-        width: min(80vw, 370px);
-        margin: 0 auto;
-    }
-
-    .orbit-vertical-label {
-        right: -5%;
-    }
-
     .orbit-bottom {
         grid-template-columns: 1fr auto;
     }
@@ -640,12 +598,20 @@ button {
 }
 
 @media (max-width: 390px) {
-    .cascade-title {
-        font-size: 12vw;
+    .hero-title {
+        font-size: 15vw;
     }
 
-    .cascade-art {
-        width: 60vw;
+    .hero-description {
+        font-size: 11px;
+    }
+
+    .site-footer span:last-child {
+        text-align: right;
+    }
+
+    .cascade-title {
+        font-size: 12vw;
     }
 
     .orbit-title {
