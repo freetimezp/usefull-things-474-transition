@@ -3,7 +3,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const COLS = 16;
 
     const grid = document.querySelector(".transition-grid");
+
     if (!grid || !window.gsap) return;
+
+    const gsap = window.gsap;
 
     const reducedMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
@@ -12,27 +15,37 @@ document.addEventListener("DOMContentLoaded", () => {
     let blocks = [];
     let activeTimeline = null;
     let navigating = false;
+    let resizeFrame = null;
+    let pageRevealed = false;
 
     gsap.config({
         nullTargetWarn: false,
     });
 
+    // Build the transition grid before starting any animation.
     function createGrid() {
         grid.innerHTML = "";
         blocks = [];
 
-        const blockWidth = window.innerWidth / COLS;
-        const blockHeight = window.innerHeight / ROWS;
+        // Use the layout viewport to avoid unnecessary changes
+        // caused by mobile browser toolbar movement.
+        const width = document.documentElement.clientWidth;
+        const height = document.documentElement.clientHeight;
+
+        const blockWidth = width / COLS;
+        const blockHeight = height / ROWS;
 
         for (let row = 0; row < ROWS; row++) {
             for (let col = 0; col < COLS; col++) {
                 const block = document.createElement("div");
 
                 block.className = "transition-block";
+
                 block.style.width = `${blockWidth + 1}px`;
                 block.style.height = `${blockHeight + 1}px`;
                 block.style.left = `${col * blockWidth}px`;
                 block.style.top = `${row * blockHeight}px`;
+
                 block.style.transformOrigin =
                     row % 2 === 0 ? "left center" : "right center";
 
@@ -41,7 +54,9 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        gsap.set(blocks, { scaleX: 0 });
+        gsap.set(blocks, {
+            scaleX: 0,
+        });
     }
 
     function getRow(row) {
@@ -49,10 +64,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function coverScreen() {
-        const tl = gsap.timeline();
+        const timeline = gsap.timeline();
 
         for (let row = 0; row < ROWS; row++) {
-            tl.to(
+            timeline.to(
                 getRow(row),
                 {
                     scaleX: 1,
@@ -67,14 +82,19 @@ document.addEventListener("DOMContentLoaded", () => {
             );
         }
 
-        return tl;
+        return timeline;
     }
 
     function revealScreen() {
-        const tl = gsap.timeline();
+        const timeline = gsap.timeline({
+            onComplete: () => {
+                pageRevealed = true;
+                activeTimeline = null;
+            },
+        });
 
         for (let row = 0; row < ROWS; row++) {
-            tl.to(
+            timeline.to(
                 getRow(row),
                 {
                     scaleX: 0,
@@ -89,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
             );
         }
 
-        return tl;
+        return timeline;
     }
 
     function navigate(url) {
@@ -97,32 +117,56 @@ document.addEventListener("DOMContentLoaded", () => {
 
         navigating = true;
 
+        // Do not let a pending resize interrupt the exit animation.
+        if (resizeFrame !== null) {
+            cancelAnimationFrame(resizeFrame);
+            resizeFrame = null;
+        }
+
         if (reducedMotion) {
-            window.location.href = url;
+            window.location.assign(url);
             return;
         }
+
+        // Make sure the current grid is ready to cover the screen.
+        gsap.set(blocks, {
+            scaleX: 0,
+        });
+
+        pageRevealed = false;
 
         activeTimeline = coverScreen();
 
         activeTimeline.eventCallback("onComplete", () => {
-            window.location.href = url;
+            window.location.assign(url);
         });
     }
 
-    // Animate the current page in when it loads.
+    // Build first, then start exactly one entry animation.
+    createGrid();
+
     if (reducedMotion) {
-        gsap.set(blocks, { scaleX: 0 });
+        pageRevealed = true;
     } else {
-        gsap.set(blocks, { scaleX: 1 });
-        revealScreen();
+        gsap.set(blocks, {
+            scaleX: 1,
+        });
+
+        activeTimeline = revealScreen();
     }
 
+    // Intercept only ordinary same-tab navigation.
     document.addEventListener("click", (event) => {
-        const link = event.target.closest("a[data-transition]");
+        const target = event.target;
+
+        if (!(target instanceof Element)) return;
+
+        const link = target.closest("a[data-transition]");
+
         if (!link) return;
 
-        // Preserve browser behavior for special clicks.
         if (
+            event.defaultPrevented ||
             event.metaKey ||
             event.ctrlKey ||
             event.shiftKey ||
@@ -137,33 +181,49 @@ document.addEventListener("DOMContentLoaded", () => {
         const destination = new URL(link.href, window.location.href);
 
         if (destination.origin !== window.location.origin) return;
-
-        // Do not animate a reload of the same URL.
         if (destination.href === window.location.href) return;
 
         event.preventDefault();
         navigate(destination.href);
     });
 
-    // Keep the grid sized correctly without interrupting an active transition.
-    let resizeFrame;
+    // Mobile browser bars can trigger frequent resize events.
+    // Never rebuild the grid while an animation is in progress.
+    function handleResize() {
+        if (navigating || !pageRevealed) return;
 
-    window.addEventListener("resize", () => {
-        cancelAnimationFrame(resizeFrame);
+        if (resizeFrame !== null) {
+            cancelAnimationFrame(resizeFrame);
+        }
 
         resizeFrame = requestAnimationFrame(() => {
-            if (navigating) return;
+            resizeFrame = null;
 
-            activeTimeline?.kill();
+            if (navigating || !pageRevealed) return;
+
             createGrid();
         });
+    }
+
+    window.addEventListener("resize", handleResize, {
+        passive: true,
     });
 
-    createGrid();
+    // Restore a clean state if the browser restores this page
+    // from its back-forward cache.
+    window.addEventListener("pageshow", (event) => {
+        if (!event.persisted) return;
 
-    // Start with the grid hidden and reveal the page.
-    if (blocks.length && !reducedMotion) {
-        gsap.set(blocks, { scaleX: 1 });
-        activeTimeline = revealScreen();
-    }
+        navigating = false;
+        activeTimeline?.kill();
+        activeTimeline = null;
+
+        createGrid();
+
+        gsap.set(blocks, {
+            scaleX: 0,
+        });
+
+        pageRevealed = true;
+    });
 });
